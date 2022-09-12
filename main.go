@@ -48,7 +48,6 @@ func main() {
 	newCtx, span := otel.Tracer(name).Start(ctx, "main")
 	defer span.End()
 	foo(newCtx)
-
 }
 
 func foo(ctx context.Context) error {
