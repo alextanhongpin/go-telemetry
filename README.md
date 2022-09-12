@@ -10,3 +10,4 @@ $ go run counter.go
 
 Reference:
 - https://uptrace.dev/opentelemetry/#glossary
+- https://uptrace.dev/opentelemetry/go-metrics.html#getting-started
