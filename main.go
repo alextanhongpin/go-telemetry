@@ -36,8 +36,8 @@ func main() {
 		trace.WithBatcher(exp),
 		trace.WithResource(newResource()),
 	)
-	defer func() {
 
+	defer func() {
 		if err := tp.Shutdown(context.Background()); err != nil {
 			l.Fatal(err)
 		}
