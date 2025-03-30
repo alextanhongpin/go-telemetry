@@ -1,15 +1,15 @@
 {
 	"Name": "foo",
 	"SpanContext": {
-		"TraceID": "c193cb6a27cb9c26c2893610e5861e91",
-		"SpanID": "3eef32694ff2cbaa",
+		"TraceID": "12adec8f7c68e2f8543fb45ec8a8aecf",
+		"SpanID": "63009317f0d34332",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
 	},
 	"Parent": {
-		"TraceID": "c193cb6a27cb9c26c2893610e5861e91",
-		"SpanID": "13b38f60114cc167",
+		"TraceID": "12adec8f7c68e2f8543fb45ec8a8aecf",
+		"SpanID": "6a51a23027c1928b",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
@@ -68,8 +68,8 @@
 {
 	"Name": "main",
 	"SpanContext": {
-		"TraceID": "c193cb6a27cb9c26c2893610e5861e91",
-		"SpanID": "13b38f60114cc167",
+		"TraceID": "12adec8f7c68e2f8543fb45ec8a8aecf",
+		"SpanID": "6a51a23027c1928b",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false

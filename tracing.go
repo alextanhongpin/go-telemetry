@@ -2,14 +2,17 @@ package main
 
 import (
 	"context"
+	"math/rand/v2"
 	"time"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	oteltrace "go.opentelemetry.io/otel/trace"
 )
 
 const (
@@ -45,6 +48,15 @@ func main() {
 	ctx, span := tr.Start(ctx, "foo")
 	defer span.End()
 
+	if rand.IntN(2) == 0 {
+		span.SetStatus(codes.Error, "An error occurred")
+	} else {
+		span.SetStatus(codes.Ok, "All is well")
+	}
+	span.SetStatus(codes.Error, "An error occurred")
+
+	span.SetAttributes(attribute.String("foo", "bar"))
+
 	bar(ctx)
 }
 
@@ -52,8 +64,22 @@ func bar(ctx context.Context) {
 	// Use the global TracerProvider.
 	tr := otel.Tracer("component-bar")
 	_, span := tr.Start(ctx, "bar")
-	span.SetAttributes(attribute.Key("testset").String("value"))
 	defer span.End()
+
+	span.SetAttributes(
+		attribute.Key("testset").String("value"),
+		attribute.Key("foo").String("bar"),
+	)
+
+	if rand.IntN(2) == 0 {
+		span.SetStatus(codes.Error, "An error occurred")
+	} else {
+		span.SetStatus(codes.Ok, "All is well")
+	}
+	span.AddEvent("event in bar",
+		oteltrace.WithStackTrace(true),
+		oteltrace.WithTimestamp(time.Now()),
+		oteltrace.WithAttributes(attribute.String("foo", "bar")))
 }
 
 // tracerProvider returns an OpenTelemetry TracerProvider, configured to use
