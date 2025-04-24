@@ -1,3 +1,4 @@
+// This package demonstrates how to use OpenTelemetry to create and export metrics.
 package main
 
 import (

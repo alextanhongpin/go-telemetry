@@ -1,7 +1,9 @@
+// This package demonstrates how to use OpenTelemetry to create and export traces.
 package main
 
 import (
 	"context"
+	"fmt"
 	"math/rand/v2"
 	"time"
 
@@ -9,6 +11,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
@@ -87,11 +90,22 @@ func bar(ctx context.Context) {
 // TracerProvider will also use a Resource configured with all the information
 // about the application.
 func tracerProvider(url string) (*trace.TracerProvider, error) {
-	// Create the Jaeger exporter.
-	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
-	if err != nil {
-		return nil, err
+	var exp trace.SpanExporter
+	var err error
+	development := true
+	if development {
+		exp, err = stdouttrace.New(stdouttrace.WithPrettyPrint())
+		if err != nil {
+			return nil, fmt.Errorf("creating stdout exporter: %w", err)
+		}
+	} else {
+		// Create the Jaeger exporter.
+		exp, err = jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
+		if err != nil {
+			return nil, err
+		}
 	}
+
 	tp := trace.NewTracerProvider(
 		// Always be sure to batch in production.
 		trace.WithBatcher(exp),
