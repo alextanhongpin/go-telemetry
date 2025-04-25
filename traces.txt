@@ -1,15 +1,15 @@
 {
 	"Name": "foo",
 	"SpanContext": {
-		"TraceID": "12adec8f7c68e2f8543fb45ec8a8aecf",
-		"SpanID": "63009317f0d34332",
+		"TraceID": "cba7f92c6ca0a9f0924c0abd73321168",
+		"SpanID": "e82c98fb2e6f5518",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
 	},
 	"Parent": {
-		"TraceID": "12adec8f7c68e2f8543fb45ec8a8aecf",
-		"SpanID": "6a51a23027c1928b",
+		"TraceID": "cba7f92c6ca0a9f0924c0abd73321168",
+		"SpanID": "696d8c33fba7c28f",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
@@ -58,18 +58,75 @@
 	"DroppedEvents": 0,
 	"DroppedLinks": 0,
 	"ChildSpanCount": 0,
-	"Resource": null,
+	"Resource": [
+		{
+			"Key": "environment",
+			"Value": {
+				"Type": "STRING",
+				"Value": "demo"
+			}
+		},
+		{
+			"Key": "service.instance.id",
+			"Value": {
+				"Type": "STRING",
+				"Value": "abcdef123456"
+			}
+		},
+		{
+			"Key": "service.name",
+			"Value": {
+				"Type": "STRING",
+				"Value": "fib"
+			}
+		},
+		{
+			"Key": "service.version",
+			"Value": {
+				"Type": "STRING",
+				"Value": "v0.1.0"
+			}
+		},
+		{
+			"Key": "telemetry.sdk.language",
+			"Value": {
+				"Type": "STRING",
+				"Value": "go"
+			}
+		},
+		{
+			"Key": "telemetry.sdk.name",
+			"Value": {
+				"Type": "STRING",
+				"Value": "opentelemetry"
+			}
+		},
+		{
+			"Key": "telemetry.sdk.version",
+			"Value": {
+				"Type": "STRING",
+				"Value": "1.35.0"
+			}
+		}
+	],
+	"InstrumentationScope": {
+		"Name": "test",
+		"Version": "",
+		"SchemaURL": "",
+		"Attributes": null
+	},
 	"InstrumentationLibrary": {
 		"Name": "test",
 		"Version": "",
-		"SchemaURL": ""
+		"SchemaURL": "",
+		"Attributes": null
 	}
 }
 {
 	"Name": "main",
 	"SpanContext": {
-		"TraceID": "12adec8f7c68e2f8543fb45ec8a8aecf",
-		"SpanID": "6a51a23027c1928b",
+		"TraceID": "cba7f92c6ca0a9f0924c0abd73321168",
+		"SpanID": "696d8c33fba7c28f",
 		"TraceFlags": "01",
 		"TraceState": "",
 		"Remote": false
@@ -95,10 +152,67 @@
 	"DroppedEvents": 0,
 	"DroppedLinks": 0,
 	"ChildSpanCount": 1,
-	"Resource": null,
+	"Resource": [
+		{
+			"Key": "environment",
+			"Value": {
+				"Type": "STRING",
+				"Value": "demo"
+			}
+		},
+		{
+			"Key": "service.instance.id",
+			"Value": {
+				"Type": "STRING",
+				"Value": "abcdef123456"
+			}
+		},
+		{
+			"Key": "service.name",
+			"Value": {
+				"Type": "STRING",
+				"Value": "fib"
+			}
+		},
+		{
+			"Key": "service.version",
+			"Value": {
+				"Type": "STRING",
+				"Value": "v0.1.0"
+			}
+		},
+		{
+			"Key": "telemetry.sdk.language",
+			"Value": {
+				"Type": "STRING",
+				"Value": "go"
+			}
+		},
+		{
+			"Key": "telemetry.sdk.name",
+			"Value": {
+				"Type": "STRING",
+				"Value": "opentelemetry"
+			}
+		},
+		{
+			"Key": "telemetry.sdk.version",
+			"Value": {
+				"Type": "STRING",
+				"Value": "1.35.0"
+			}
+		}
+	],
+	"InstrumentationScope": {
+		"Name": "test",
+		"Version": "",
+		"SchemaURL": "",
+		"Attributes": null
+	},
 	"InstrumentationLibrary": {
 		"Name": "test",
 		"Version": "",
-		"SchemaURL": ""
+		"SchemaURL": "",
+		"Attributes": null
 	}
 }
