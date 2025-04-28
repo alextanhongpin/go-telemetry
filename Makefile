@@ -10,4 +10,4 @@ down:
 
 dashboard:
 	open http://localhost:16686
-	open http://localhost:9090
+	open http://localhost:9090/metrics
