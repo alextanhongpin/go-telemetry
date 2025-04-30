@@ -37,3 +37,5 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [debug]
+      # Example of using Loki as a log exporter
+      # https://grafana.com/docs/loki/latest/send-data/otel/
