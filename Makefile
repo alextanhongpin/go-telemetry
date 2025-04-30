@@ -1,6 +1,9 @@
 run:
 	go run main.go
 
+trace_http:
+	go run trace_http.go
+
 up:
 	@docker-compose up -d
 

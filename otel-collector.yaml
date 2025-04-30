@@ -18,7 +18,8 @@ exporters:
   prometheus:
     endpoint: 0.0.0.0:9090
     namespace: testapp
-  debug:
+  debug: # aka, stdOut/stdErr
+    verbosity: detailed
 
 service:
   pipelines:
@@ -31,3 +32,8 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [prometheus, debug]
+
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]

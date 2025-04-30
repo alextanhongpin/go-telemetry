@@ -86,7 +86,6 @@ func main() {
 		attribute.String("attrC", "vanilla"),
 	}
 
-	logger.Info("hello world")
 	runCount, err := meter.Int64Counter("run", metric.WithDescription("The number of times the iteration ran"))
 	if err != nil {
 		log.Fatal(err)
@@ -103,6 +102,7 @@ func main() {
 		ctx, span := tracer.Start(ctx, "helloHandler")
 		defer span.End()
 
+		logger.Info("hello world")
 		runCount.Add(ctx, 1, metric.WithAttributes(commonAttrs...))
 
 		span.SetAttributes(attribute.String("foo", "bar"))
