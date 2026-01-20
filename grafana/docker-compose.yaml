@@ -1,0 +1,12 @@
+---
+services:
+  otel-collector:
+    image: grafana/otel-lgtm:0.15.0
+    ports:
+      - 3000:3000  # Grafana
+      - 9090:9090  # Prometheus
+      - 3100:3100  # Loki
+      - 4317:4317  # OTLP (gRPC)
+      - 4318:4318  # OTLP (HTTP)
+    #volumes:
+      #- ./otelcol-config.yaml:/otel-lgtm/otelcol-config.yaml
