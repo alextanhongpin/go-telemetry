@@ -17,6 +17,7 @@ services:
     image: otel/opentelemetry-collector:0.143.1
     volumes:
       - ./otel-collector.yaml:/etc/otelcol/config.yaml
+      - ./tmp:/tmp
     ports:
       - 13133:13133  # health_check extension
       - 1888:1888  # pprof extension

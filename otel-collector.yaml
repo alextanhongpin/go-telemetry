@@ -24,6 +24,10 @@ exporters:  # the OTLP then exports the result to jaeger and prometheus.
     namespace: testapp
   debug:  # aka, stdOut/stdErr
     verbosity: detailed
+  file:
+    path: "/tmp/out.jsonl"
+    format: json
+
 
 service:
   extensions: [health_check]
@@ -31,16 +35,16 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/jaeger, debug]
+      exporters: [otlp/jaeger, debug, file]
 
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [prometheus, debug]
+      exporters: [prometheus, debug, file]
 
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug]
+      exporters: [debug, file]
       # Example of using Loki as a log exporter
       # https://grafana.com/docs/loki/latest/send-data/otel/
