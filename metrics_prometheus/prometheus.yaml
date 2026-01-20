@@ -1,6 +1,18 @@
 ---
+# my global config
+global:
+  # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  scrape_interval: 15s
+  # Evaluate rules every 15 seconds. The default is every 1 minute.
+  evaluation_interval: 15s
+  # scrape_timeout is set to the global default (10s).
+
 scrape_configs:
   - job_name: 'myapp'
     static_configs:
       # This is the server we are running.
       - targets: ['host.docker.internal:8080']
+        # The label name is added as a label `label_name=<label_value>` to any
+        # timeseries scraped from this config.
+        labels:
+          app: "prometheus"
