@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"time"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -22,20 +23,16 @@ const name = "test"
 func main() {
 	l := log.New(os.Stdout, "", 0)
 	// Write telemetry data to a file.
-	f, err := os.Create("traces.txt")
+	f, err := os.Create("traces.json")
 	if err != nil {
 		l.Fatal(err)
 	}
 	defer f.Close()
 
-	exp, err := newExporter(f)
+	tp, err := newStdoutTraceProvider(f, newResource())
 	if err != nil {
-		l.Fatal(err)
+		panic(err)
 	}
-	tp := trace.NewTracerProvider(
-		trace.WithBatcher(exp),
-		trace.WithResource(newResource()),
-	)
 
 	defer func() {
 		if err := tp.Shutdown(context.Background()); err != nil {
@@ -63,16 +60,6 @@ func foo(ctx context.Context) error {
 	return nil
 }
 
-func newExporter(w io.Writer) (trace.SpanExporter, error) {
-	return stdouttrace.New(
-		stdouttrace.WithWriter(w),
-		// Use human-readable output.
-		stdouttrace.WithPrettyPrint(),
-		// Do not print timestamps for the demo.
-		stdouttrace.WithoutTimestamps(),
-	)
-}
-
 // newResource returns a resource describing this application.
 func newResource() *resource.Resource {
 	r, _ := resource.Merge(
@@ -86,4 +73,27 @@ func newResource() *resource.Resource {
 		),
 	)
 	return r
+}
+
+func newStdoutTraceProvider(w io.Writer, res *resource.Resource) (*trace.TracerProvider, error) {
+	traceExporter, err := stdouttrace.New(
+		stdouttrace.WithWriter(w),
+		// Use human-readable output.
+		stdouttrace.WithPrettyPrint(),
+		// Do not print timestamps for the demo.
+		stdouttrace.WithoutTimestamps(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	tracerProvider := trace.NewTracerProvider(
+		trace.WithBatcher(traceExporter,
+			// Default is 5s. Set to 1s for demonstrative purposes.
+			trace.WithBatchTimeout(time.Second)),
+		trace.WithResource(res),
+		trace.WithSampler(trace.AlwaysSample()),
+	)
+
+	return tracerProvider, nil
 }

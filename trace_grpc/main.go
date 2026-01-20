@@ -15,11 +15,12 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/propagation"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -44,27 +45,29 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tracerProvider, err := newTraceProvider(ctx, res, conn)
+	shutdownTracerProvider, err := initTracerProvider(ctx, res, conn)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+	defer func() {
+		if err := shutdownTracerProvider(ctx); err != nil {
+			log.Fatalf("failed to shutdown TracerProvider: %s", err)
+		}
+	}()
 
-	defer tracerProvider.Shutdown(ctx)
-	otel.SetTracerProvider(tracerProvider)
-
-	metricExporter, err := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithGRPCConn(conn))
+	shutdownMeterProvider, err := initMeterProvider(ctx, res, conn)
 	if err != nil {
-		panic(fmt.Errorf("failed to create metrics exporter: %w", err))
+		log.Fatal(err)
 	}
+	defer func() {
+		if err := shutdownMeterProvider(ctx); err != nil {
+			log.Fatalf("failed to shutdown MeterProvider: %s", err)
+		}
+	}()
 
-	meterProvider := sdkmetric.NewMeterProvider(
-		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(metricExporter)),
-		sdkmetric.WithResource(res),
-	)
-	defer meterProvider.Shutdown(ctx)
-	otel.SetMeterProvider(meterProvider)
-
-	meter := otel.Meter("my-meter")
+	name := "go.opentelemetry.io/contrib/examples/otel-collector"
+	tracer := otel.Tracer(name)
+	meter := otel.Meter(name)
 
 	// Attributes represent additional key-value descriptors that can be bound
 	// to a metric observer or recorder.
@@ -79,9 +82,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for i := 0; i < 10; i++ {
+	// Work begins
+	ctx, span := tracer.Start(
+		ctx,
+		"CollectorExporter-Example",
+		trace.WithAttributes(commonAttrs...))
+	defer span.End()
+	for i := range 10 {
+		_, iSpan := tracer.Start(ctx, fmt.Sprintf("Sample-%d", i))
 		runCount.Add(ctx, 1, metric.WithAttributes(commonAttrs...))
 		log.Printf("Doing really hard work (%d / 10)\n", i+1)
+
+		<-time.After(time.Second)
+		iSpan.End()
 	}
 
 	mux := http.NewServeMux()
@@ -117,19 +130,43 @@ func otelReqFilter(req *http.Request) bool {
 	return req.URL.Path != "/auth"
 }
 
-func newTraceProvider(ctx context.Context, res *resource.Resource, conn *grpc.ClientConn) (*trace.TracerProvider, error) {
+// Initializes an OTLP exporter, and configures the corresponding meter provider.
+func initMeterProvider(ctx context.Context, res *resource.Resource, conn *grpc.ClientConn) (func(context.Context) error, error) {
+	metricExporter, err := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithGRPCConn(conn))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create metrics exporter: %w", err)
+	}
+
+	meterProvider := sdkmetric.NewMeterProvider(
+		sdkmetric.WithReader(sdkmetric.NewPeriodicReader(metricExporter)),
+		sdkmetric.WithResource(res),
+	)
+	otel.SetMeterProvider(meterProvider)
+
+	return meterProvider.Shutdown, nil
+}
+
+// Initializes an OTLP exporter, and configures the corresponding trace provider.
+func initTracerProvider(ctx context.Context, res *resource.Resource, conn *grpc.ClientConn) (func(context.Context) error, error) {
 	// Set up a trace exporter
 	traceExporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(conn))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create trace exporter: %w", err)
 	}
 
-	traceProvider := trace.NewTracerProvider(
+	// Register the trace exporter with a TracerProvider, using a batch
+	// span processor to aggregate spans before export.
+	tracerProvider := trace.NewTracerProvider(
 		sdktrace.WithBatcher(traceExporter, sdktrace.WithBatchTimeout(time.Second)),
 		sdktrace.WithResource(res),
 		sdktrace.WithSampler(trace.AlwaysSample()),
 	)
-	return traceProvider, nil
+	otel.SetTracerProvider(tracerProvider)
+
+	// Set global propagator to tracecontext (the default is no-op).
+	otel.SetTextMapPropagator(propagation.TraceContext{})
+
+	return tracerProvider.Shutdown, nil
 }
 
 // Initialize a gRPC connection to be used by both the tracer and meter

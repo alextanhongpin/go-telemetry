@@ -11,7 +11,10 @@ receivers:
 processors:
   batch:
 
-exporters:
+extensions:
+  health_check: {}
+
+exporters:  # the OTLP then exports the result to jaeger and prometheus.
   otlp/jaeger:
     endpoint: jaeger:4317  # 4317 for grpc, 4318 for http
     tls:
@@ -23,6 +26,7 @@ exporters:
     verbosity: detailed
 
 service:
+  extensions: [health_check]
   pipelines:
     traces:
       receivers: [otlp]
