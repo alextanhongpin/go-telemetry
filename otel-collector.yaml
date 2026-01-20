@@ -1,6 +1,7 @@
+---
 # https://github.com/open-telemetry/opentelemetry-go-contrib/blob/main/examples/otel-collector/otel-collector.yaml
 receivers:
-  otlp:
+  otlp:  # the OTLP receiver the app is sending metrics to
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
@@ -11,14 +12,14 @@ processors:
   batch:
 
 exporters:
-  otlp:
-    endpoint: jaeger:4317 # 4317 for grpc, 4318 for http
+  otlp/jaeger:
+    endpoint: jaeger:4317  # 4317 for grpc, 4318 for http
     tls:
       insecure: true
   prometheus:
     endpoint: 0.0.0.0:9090
     namespace: testapp
-  debug: # aka, stdOut/stdErr
+  debug:  # aka, stdOut/stdErr
     verbosity: detailed
 
 service:
@@ -26,7 +27,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp, debug]
+      exporters: [otlp/jaeger, debug]
 
     metrics:
       receivers: [otlp]

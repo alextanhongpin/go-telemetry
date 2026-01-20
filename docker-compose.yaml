@@ -1,21 +1,22 @@
+---
 services:
   prometheus:
-    image: prom/prometheus:v3.3.0
+    image: prom/prometheus:v3.9.1
     ports:
-      - 127.0.0.1:9091:9090 # change the port
+      - 127.0.0.1:9091:9090  # change the port
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
   jaeger:
-    image: jaegertracing/all-in-one:1.60
+    image: jaegertracing/all-in-one:1.76.0
     platform: linux/amd64
     ports:
-      - 127.0.0.1:16686:16686 # Serves the Frontend.
+      - 127.0.0.1:16686:16686  # Serves the Frontend.
   collector:
-    image: otel/opentelemetry-collector:0.123.0
+    image: otel/opentelemetry-collector:0.143.1
     command: ["--config=/etc/otel-collector.yaml"]
     volumes:
       - ./otel-collector.yaml:/etc/otel-collector.yaml
     ports:
-      - 4317:4317 # http
-      - 4318:4318 # grpc
+      - 4317:4317  # grpc
+      - 4318:4318  # http
       - 9090:9090
